@@ -1,0 +1,20 @@
+services:
+  solver-api:
+    build:
+      context: backend/.
+    ports:
+      - '5000:5000'
+    volumes:
+      - ./backend/app:/code
+    restart: "no"
+
+  solver-ui:
+    build:
+      context: frontend/.
+    environment:
+      - BACKEND_API=http://solver-api
+    ports:
+      - '3000:80'
+    volumes:
+      - ./frontend:/code
+    restart: "no"
