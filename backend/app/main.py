@@ -1,4 +1,3 @@
-from imp import reload
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -6,6 +5,8 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
 from water_jud_riddle import JugTooSmallException, WaterJugSolver
+
+# pragma: no cover
 
 app = FastAPI()
 
@@ -24,13 +25,8 @@ app.add_middleware(
 )
 
 
-@app.get("/")
-def get_root():
-    return {"Hello": "World"}
-
-
 @app.post("/solve")
-def solve(x: int, y: int, z: int):
+async def solve(x: int, y: int, z: int):
     solver = WaterJugSolver(x, y, z)
     result = solver.solve()
     return result

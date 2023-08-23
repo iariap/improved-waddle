@@ -20,9 +20,7 @@ class Jug:
         return self.current_level == self.capacity
 
     def transfer_to(self, other_jug: "Jug"):
-        transfer_amount = min(
-            self.current_level, other_jug.capacity - other_jug.current_level
-        )
+        transfer_amount = min(self.current_level, other_jug.capacity - other_jug.current_level)
         self.current_level -= transfer_amount
         other_jug.current_level += transfer_amount
 
@@ -31,9 +29,6 @@ class WaterJugSolverStep:
     def __init__(self, jug_x: Jug, jug_y: Jug):
         self.jug_x = copy(jug_x)
         self.jug_y = copy(jug_y)
-
-    def __repr__(self) -> str:
-        return f"Jug X: {self.jug_x.current_level}/{self.jug_x.capacity}, Jug Y: {self.jug_y.current_level}/{self.jug_y.capacity}\n"
 
 
 class WaterJugSolverStatus(StrEnum):
@@ -68,33 +63,22 @@ class WaterJugResult:
 
     def was_processed(self, level_x: Jug, level_y: Jug):
         query = filter(
-            lambda step: step.jug_x.current_level == level_x
-            and step.jug_y.current_level == level_y,
+            lambda step: step.jug_x.current_level == level_x and step.jug_y.current_level == level_y,
             self.steps,
         )
         was = next(query, False)
         return was
 
-    def __repr__(self) -> str:
-        return (
-            f"WaterJugSolverResult(steps={self.steps}, status={self.status})"
-            if self.status != WaterJugSolverStatus.ERROR
-            else f"WaterJugSolverResult(status={self.status}, reason={self.reason})"
-        )
-
 
 class WaterJugSolver:
-    def __init__(self, jug_x_capacity, jug_y_capacity, target_amount):
+    def __init__(self, jug_x_capacity: int, jug_y_capacity: int, target_amount: int):
         self.jug_x = Jug(jug_x_capacity)
         self.jug_y = Jug(jug_y_capacity)
         self.target_amount = target_amount
 
     def solve(self):
         result = WaterJugResult()
-        if (
-            self.jug_x.capacity < self.target_amount
-            and self.jug_y.capacity < self.target_amount
-        ):
+        if self.jug_x.capacity < self.target_amount and self.jug_y.capacity < self.target_amount:
             result.error(
                 f"Jugs are too small to hold {self.target_amount} galons. Maximun value is {max(self.jug_x.capacity, self.jug_y.capacity)} galons"
             )
@@ -102,29 +86,21 @@ class WaterJugSolver:
         while (
             self.jug_x.current_level != self.target_amount
             and self.jug_y.current_level != self.target_amount
-            and not result.was_processed(
-                self.jug_x.current_level, self.jug_y.current_level
-            )
+            and not result.was_processed(self.jug_x.current_level, self.jug_y.current_level)
         ):
             result.add_step(self.jug_x, self.jug_y)
 
-            # Fill jug Y if it's empty
-            if self.jug_y.is_empty():
-                self.jug_y.fill()
-            # Pour water from jug Y to jug X
-            elif not self.jug_y.is_empty() and not self.jug_x.is_full():
-                self.jug_y.transfer_to(self.jug_x)
-            # Empty jug X if it's full
-            elif self.jug_x.is_full():
-                self.jug_x.empty()
-            # Empty jug Y if there's no other option
-            else:
+            # Fill jug X if it's empty
+            if self.jug_x.is_empty():
+                self.jug_x.fill()
+            # Pour water from jug X to jug Y
+            elif not self.jug_x.is_empty() and not self.jug_y.is_full():
+                self.jug_x.transfer_to(self.jug_y)
+            # Empty jug Y if it's full
+            elif self.jug_y.is_full():
                 self.jug_y.empty()
 
-        if (
-            self.jug_x.current_level == self.target_amount
-            or self.jug_y.current_level == self.target_amount
-        ):
+        if self.jug_x.current_level == self.target_amount or self.jug_y.current_level == self.target_amount:
             result.add_step(self.jug_x, self.jug_y)
             result.found()
         else:
