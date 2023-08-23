@@ -1,6 +1,6 @@
 # Water Jug Riddle
 
-To build the image run:
+To build the images run:
 ```bash
 docker compose build
 ```
